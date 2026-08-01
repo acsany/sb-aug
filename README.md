@@ -43,6 +43,15 @@ cp .env.example .env
 
 `.env` is not auto-loaded; use `uv run --env-file .env` to load the dev environment explicitly.
 
+### Log format
+
+Console and file output share one compact, pipe-delimited line — no milliseconds, and the
+level rendered as a single letter (`T`, `D`, `I`, `S`, `W`, `E`, `C`):
+
+```
+2026-08-01 20:56:47 | I | secondbrain.app:main:29 | Hello from secondbrain!
+```
+
 ## Testing
 
 Run tests:
