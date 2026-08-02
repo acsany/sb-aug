@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import click
 from loguru import logger
 
@@ -9,10 +11,13 @@ from secondbrain.app import configure_logging
 from secondbrain.notes import create_note, notes_dir, read_note
 
 
-@click.group()
-def cli():
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
     """secondbrain -- capture and organise your thoughts."""
     configure_logging()
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(tui)
 
 
 @cli.command()
@@ -52,6 +57,16 @@ def list_notes():
     logger.debug("Found {} note(s) in {}", len(files), base_dir)
     for i, f in enumerate(files, 1):
         click.echo(f"{i}. {f.name}")
+
+
+@cli.command()
+@click.option("--debug", is_flag=True, help="Enable debug mode.")
+def tui(debug: bool):
+    """Launch the interactive TUI."""
+    from secondbrain.tui.app import SecondBrainTUI
+
+    app = SecondBrainTUI(debug=debug)
+    app.run()
 
 
 @cli.command()

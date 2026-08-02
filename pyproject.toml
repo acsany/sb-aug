@@ -10,6 +10,7 @@ requires-python = ">=3.13"
 dependencies = [
     "click>=8.1,<9",
     "loguru>=0.7",
+    "textual>=0.80.0",
 ]
 
 [project.scripts]
@@ -19,6 +20,7 @@ secondbrain = "secondbrain.cli:cli"
 dev = [
     "ruff>=0.11",
     "pytest>=8.0",
+    "pytest-asyncio>=0.24",
     "pytest-cov>=6.0",
     "pytest-env>=1.1",
     "mkdocs>=1.6",
@@ -46,6 +48,9 @@ addopts = [
     "-ra",
 ]
 testpaths = ["tests"]
+markers = [
+    "asyncio: mark test as async",
+]
 
 [tool.pytest_env]
 env_files = [".env.test"]
