@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>secondbrain — a playful tour</title>
+<style>
+  :root{
+    --bg:#0d1117; --bg2:#151b25; --card:#171e29; --card2:#1c2533;
+    --ink:#e7edf5; --muted:#93a3b8; --line:#28313f;
+    --brand:#7c5cff; --brand2:#22d3ee;
+    --new:#34d399; --list:#facc15; --show:#f472b6;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f7fb; --bg2:#ffffff; --card:#ffffff; --card2:#f2f4f9;
+      --ink:#131722; --muted:#5c6880; --line:#e2e6ef;
+      --shadow:0 8px 24px rgba(20,30,60,.10);
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:var(--sans); color:var(--ink);
+    background:
+      radial-gradient(1000px 500px at 10% -10%, rgba(124,92,255,.18), transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, rgba(34,211,238,.14), transparent 55%),
+      var(--bg);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:0 20px 80px}
+
+  /* ---------- hero ---------- */
+  header{padding:64px 0 28px; text-align:center}
+  .logo{font-size:64px; line-height:1; filter:drop-shadow(0 6px 18px rgba(124,92,255,.5)); animation:float 4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  h1{margin:.3em 0 .1em; font-size:clamp(34px,6vw,54px); letter-spacing:-.02em;
+     background:linear-gradient(90deg,var(--brand),var(--brand2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .tag{color:var(--muted); font-size:18px; margin:0}
+  .pills{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:20px}
+  .pill{font-family:var(--mono); font-size:12px; padding:6px 12px; border-radius:999px;
+        border:1px solid var(--line); background:var(--card); color:var(--muted)}
+
+  /* ---------- flow ---------- */
+  h2{font-size:24px; margin:56px 0 6px; display:flex; align-items:center; gap:10px}
+  h2 .n{font-family:var(--mono); font-size:13px; background:var(--brand); color:#fff; border-radius:8px; padding:3px 9px}
+  .sub{color:var(--muted); margin:0 0 22px}
+
+  .flow{display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:12px; align-items:center;
+        background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow:var(--shadow)}
+  .fbox{text-align:center; padding:14px 10px; border-radius:14px; background:var(--card2); border:1px solid var(--line)}
+  .fbox .ico{font-size:30px}
+  .fbox b{display:block; margin-top:6px; font-size:15px}
+  .fbox span{font-size:12.5px; color:var(--muted)}
+  .arrow{font-size:22px; color:var(--brand2)}
+  @media(max-width:760px){ .flow{grid-template-columns:1fr} .arrow{transform:rotate(90deg)} }
+
+  /* ---------- commands ---------- */
+  .cmds{display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:16px}
+  .cmd{background:var(--card); border:1px solid var(--line); border-top:3px solid var(--c);
+       border-radius:16px; padding:18px; box-shadow:var(--shadow); transition:transform .18s ease, box-shadow .18s ease}
+  .cmd:hover{transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.35)}
+  .cmd h3{margin:0; font-family:var(--mono); font-size:17px; display:flex; align-items:center; gap:9px}
+  .cmd h3 .dot{width:26px;height:26px;border-radius:8px;background:color-mix(in srgb,var(--c) 22%, transparent);
+               display:grid;place-items:center;font-size:15px}
+  .cmd p{color:var(--muted); font-size:14px; margin:9px 0 12px}
+  .usage{font-family:var(--mono); font-size:12.5px; background:var(--card2); border:1px solid var(--line);
+         border-radius:9px; padding:8px 10px; color:var(--ink); overflow-x:auto; white-space:nowrap}
+  .argrow{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
+  .arg{font-family:var(--mono); font-size:11px; padding:4px 8px; border-radius:6px;
+       background:color-mix(in srgb,var(--c) 16%, transparent); color:var(--c); border:1px solid color-mix(in srgb,var(--c) 35%, transparent)}
+  .arg.opt{background:transparent; color:var(--muted); border-color:var(--line)}
+
+  /* ---------- terminal demo ---------- */
+  .term{background:#0b0f16; border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); margin-top:16px}
+  .tbar{display:flex; align-items:center; gap:7px; padding:10px 14px; background:#131a24; border-bottom:1px solid #222c3a}
+  .tbar i{width:11px;height:11px;border-radius:50%; display:block}
+  .tbar .t1{background:#ff5f57}.tbar .t2{background:#febc2e}.tbar .t3{background:#28c840}
+  .tbar span{margin-left:8px; font-family:var(--mono); font-size:11.5px; color:#7c8ba1}
+  .tbody{padding:16px 18px; font-family:var(--mono); font-size:13px; color:#d5dee9; min-height:190px; white-space:pre-wrap}
+  .tbody .p{color:#22d3ee}
+  .tbody .o{color:#8ba0b6}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-top:16px}
+  .tab{cursor:pointer; font-family:var(--mono); font-size:12.5px; padding:7px 13px; border-radius:999px;
+       border:1px solid var(--line); background:var(--card); color:var(--muted)}
+  .tab:hover{color:var(--ink)}
+  .tab.on{background:var(--brand); border-color:var(--brand); color:#fff}
+
+  /* ---------- file explorer ---------- */
+  .explorer{display:grid; grid-template-columns:340px 1fr; gap:16px}
+  @media(max-width:820px){ .explorer{grid-template-columns:1fr} }
+  .tree{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; box-shadow:var(--shadow);
+        font-family:var(--mono); font-size:13.5px; align-self:start}
+  .node{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:9px; cursor:pointer;
+        border:1px solid transparent; transition:background .14s ease}
+  .node:hover{background:var(--card2)}
+  .node.on{background:color-mix(in srgb,var(--brand) 16%, transparent); border-color:color-mix(in srgb,var(--brand) 45%, transparent)}
+  .node .ic{font-size:15px}
+  .node .lines{margin-left:auto; font-size:11px; color:var(--muted)}
+  .dir{padding:8px 10px; color:var(--muted); display:flex; align-items:center; gap:8px}
+  .indent{padding-left:22px}
+
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:var(--shadow); min-height:340px}
+  .panel h3{margin:0 0 2px; font-family:var(--mono); font-size:19px; display:flex; align-items:center; gap:10px}
+  .badge{font-family:var(--sans); font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px;
+         background:color-mix(in srgb,var(--brand) 20%, transparent); color:var(--brand2); border:1px solid color-mix(in srgb,var(--brand) 40%, transparent)}
+  .role{color:var(--muted); font-size:13.5px; margin:6px 0 16px}
+  .panel h4{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:18px 0 8px}
+  .panel ul{margin:0; padding-left:18px; font-size:14px}
+  .panel li{margin:5px 0}
+  .panel li code{font-family:var(--mono); font-size:12.5px; background:var(--card2); padding:1px 6px; border-radius:5px; border:1px solid var(--line)}
+  .hint{color:var(--muted); text-align:center; padding:70px 20px; font-size:14.5px}
+  .deps{display:flex; gap:6px; flex-wrap:wrap}
+  .dep{font-family:var(--mono); font-size:11.5px; padding:4px 9px; border-radius:7px; background:var(--card2); border:1px solid var(--line); color:var(--muted)}
+
+  /* ---------- env / cheatsheet ---------- */
+  .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px}
+  .env{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:var(--shadow)}
+  .env b{font-family:var(--mono); font-size:14px; color:var(--brand2)}
+  .env .d{font-family:var(--mono); font-size:11.5px; color:var(--muted)}
+  .env p{margin:8px 0 0; font-size:13.5px; color:var(--muted)}
+  footer{text-align:center; color:var(--muted); font-size:13px; margin-top:60px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">🧠</div>
+  <h1>secondbrain</h1>
+  <p class="tag">Capture and organise your thoughts — one markdown file at a time.</p>
+  <div class="pills">
+    <span class="pill">🐍 Python 3.13+</span>
+    <span class="pill">🖱 click</span>
+    <span class="pill">📜 loguru</span>
+    <span class="pill">📦 uv</span>
+    <span class="pill">v0.0.1</span>
+  </div>
+</header>
+
+<h2><span class="n">01</span> What actually happens</h2>
+<p class="sub">One idea in, one tidy dated <code>.md</code> file out. That's the whole trick.</p>
+<div class="flow">
+  <div class="fbox"><div class="ico">💡</div><b>You type a title</b><span>"My brilliant idea"</span></div>
+  <div class="arrow">➜</div>
+  <div class="fbox"><div class="ico">✂️</div><b>It gets slugified</b><span>Café → cafe · 日本 stays 日本</span></div>
+  <div class="arrow">➜</div>
+  <div class="fbox"><div class="ico">📄</div><b>A note is born</b><span>2026-08-02-my-brilliant-idea.md</span></div>
+</div>
+
+<h2><span class="n">02</span> The three commands</h2>
+<p class="sub">Straight from <code>secondbrain --help</code>. Hover a card, then press play in the terminal below.</p>
+<div class="cmds">
+  <div class="cmd" style="--c:var(--new)">
+    <h3><span class="dot">✍️</span> new</h3>
+    <p>Create a new note with the given TITLE. Prints the path it wrote.</p>
+    <div class="usage">secondbrain new [OPTIONS] TITLE</div>
+    <div class="argrow"><span class="arg">TITLE (required)</span><span class="arg opt">--help</span></div>
+  </div>
+  <div class="cmd" style="--c:var(--list)">
+    <h3><span class="dot">📚</span> list</h3>
+    <p>List all notes in the notes directory — newest first, numbered for you.</p>
+    <div class="usage">secondbrain list [OPTIONS]</div>
+    <div class="argrow"><span class="arg opt">no arguments</span><span class="arg opt">--help</span></div>
+  </div>
+  <div class="cmd" style="--c:var(--show)">
+    <h3><span class="dot">🔍</span> show</h3>
+    <p>Display the contents of note NUMBER — the number you saw in <code>list</code>.</p>
+    <div class="usage">secondbrain show [OPTIONS] NUMBER</div>
+    <div class="argrow"><span class="arg">NUMBER (int)</span><span class="arg opt">--help</span></div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab on" data-k="help">--help</div>
+  <div class="tab" data-k="new">new</div>
+  <div class="tab" data-k="list">list</div>
+  <div class="tab" data-k="show">show</div>
+  <div class="tab" data-k="oops">show 99 💥</div>
+</div>
+<div class="term">
+  <div class="tbar"><i class="t1"></i><i class="t2"></i><i class="t3"></i><span>~/projects/secondbrain — zsh</span></div>
+  <div class="tbody" id="term"></div>
+</div>
+
+<h2><span class="n">03</span> Inside <code>src/</code></h2>
+<p class="sub">Click any file to see what it does. Five files, 228 lines, no magic.</p>
+<div class="explorer">
+  <div class="tree" id="tree">
+    <div class="dir">📁 src/</div>
+    <div class="dir indent">📦 secondbrain/</div>
+    <div class="node indent" style="margin-left:22px" data-f="init"><span class="ic">📭</span>__init__.py<span class="lines">0</span></div>
+    <div class="node indent" style="margin-left:22px" data-f="main"><span class="ic">🚪</span>__main__.py<span class="lines">4</span></div>
+    <div class="node indent" style="margin-left:22px" data-f="cli"><span class="ic">🖱</span>cli.py<span class="lines">80</span></div>
+    <div class="node indent" style="margin-left:22px" data-f="notes"><span class="ic">🧩</span>notes.py<span class="lines">76</span></div>
+    <div class="node indent" style="margin-left:22px" data-f="app"><span class="ic">📜</span>app.py<span class="lines">68</span></div>
+  </div>
+  <div class="panel" id="panel">
+    <div class="hint">👈 Pick a file to peek inside.</div>
+  </div>
+</div>
+
+<h2><span class="n">04</span> Knobs you can turn</h2>
+<p class="sub">Environment variables. <code>.env</code> isn't auto-loaded — use <code>uv run --env-file .env</code>.</p>
+<div class="grid2">
+  <div class="env"><b>SECONDBRAIN_DIR</b> <span class="d">default ~/secondbrain/</span>
+    <p>📂 Where your notes live. Read fresh on every call, so the environment always wins.</p></div>
+  <div class="env"><b>LOG_LEVEL</b> <span class="d">default INFO</span>
+    <p>🔊 Set to <code>DEBUG</code> for chatty console output.</p></div>
+  <div class="env"><b>LOG_FILE</b> <span class="d">default $SECONDBRAIN_DIR/app.log</span>
+    <p>📝 Rotates at 50 KB, keeps 1 backup. If it can't open, the command still runs.</p></div>
+</div>
+
+<footer>🧠 secondbrain v0.0.1 — <span style="font-family:var(--mono)">uv run secondbrain new "your next idea"</span></footer>
+</div>
+
+<script>
+/* ---------------- terminal demos ---------------- */
+const DEMOS = {
+  help: [
+    ['p','$ secondbrain --help'],
+    ['o','Usage: secondbrain [OPTIONS] COMMAND [ARGS]...\n\n  secondbrain -- capture and organise your thoughts.\n\nOptions:\n  --help  Show this message and exit.\n\nCommands:\n  list  List all notes in the notes directory.\n  new   Create a new note with the given TITLE.\n  show  Display the contents of note NUMBER.']
+  ],
+  new: [
+    ['p','$ secondbrain new "My brilliant idea"'],
+    ['o','2026-08-02 09:14:02 | I | secondbrain.cli:new:25 | Created note: /Users/you/secondbrain/2026-08-02-my-brilliant-idea.md\n/Users/you/secondbrain/2026-08-02-my-brilliant-idea.md']
+  ],
+  list: [
+    ['p','$ secondbrain list'],
+    ['o','Notes: /Users/you/secondbrain\n1. 2026-08-02-my-brilliant-idea.md\n2. 2026-08-01-cafe-thoughts.md\n3. 2026-07-30-reading-list.md']
+  ],
+  show: [
+    ['p','$ secondbrain show 1'],
+    ['o','# My brilliant idea\n\n2026-08-02T09:14:02']
+  ],
+  oops: [
+    ['p','$ secondbrain show 99'],
+    ['o','2026-08-02 09:15:41 | E | secondbrain.cli:show:72 | Note 99 out of range (3  available)\nError: Note 99 not found. Only 3 notes available.\n\n(exit code 1 — errors go to stderr, so pipes stay clean)']
+  ]
+};
+const term = document.getElementById('term');
+let typing = null;
+function play(key){
+  clearTimeout(typing);
+  term.innerHTML = '';
+  const steps = DEMOS[key];
+  let si = 0;
+  function nextStep(){
+    if(si >= steps.length) return;
+    const [cls, text] = steps[si++];
+    const el = document.createElement('span');
+    el.className = cls;
+    term.appendChild(el);
+    if(cls === 'o'){                       // output: appear at once, then done
+      el.textContent = '\n' + text + '\n\n';
+      typing = setTimeout(nextStep, 120);
+      return;
+    }
+    let i = 0;                             // prompt: typewriter
+    (function type(){
+      el.textContent = text.slice(0, ++i);
+      if(i < text.length) typing = setTimeout(type, 28);
+      else typing = setTimeout(nextStep, 320);
+    })();
+  }
+  nextStep();
+}
+document.querySelectorAll('#tabs .tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#tabs .tab').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+    play(t.dataset.k);
+  });
+});
+play('help');
+
+/* ---------------- file explorer ---------------- */
+const FILES = {
+  init: {
+    icon:'📭', name:'__init__.py', badge:'package marker', lines:'0 lines',
+    role:'Deliberately empty. Its only job is to make <code>secondbrain</code> an importable package — no side effects on import, so the CLI starts fast.',
+    does:['Marks the directory as a Python package','Keeps imports free of surprises'],
+    deps:[]
+  },
+  main: {
+    icon:'🚪', name:'__main__.py', badge:'side door', lines:'4 lines',
+    role:'Lets you run the app as a module: <code>python -m secondbrain</code>. Just forwards to the Click group.',
+    does:['Imports <code>cli</code> from <code>cli.py</code>','Calls it under <code>if __name__ == "__main__"</code>'],
+    deps:['secondbrain.cli']
+  },
+  cli: {
+    icon:'🖱', name:'cli.py', badge:'the front door', lines:'80 lines',
+    role:'The Click command group — this is what <code>secondbrain --help</code> is showing you. It parses arguments, talks to the user, and delegates the real work.',
+    does:[
+      '<code>cli()</code> — the group; configures logging before anything runs',
+      '<code>new TITLE</code> — creates a note, echoes the path',
+      '<code>list</code> — globs <code>*.md</code>, sorts newest-first, numbers them',
+      '<code>show NUMBER</code> — prints note N, or exits 1 with a friendly error',
+      'All errors go to stderr with <code>err=True</code>'
+    ],
+    deps:['click','loguru','secondbrain.app','secondbrain.notes']
+  },
+  notes: {
+    icon:'🧩', name:'notes.py', badge:'the brains', lines:'76 lines',
+    role:'Pure business logic — no printing, no Click. Where a title becomes a file on disk. Easy to test in isolation.',
+    does:[
+      '<code>notes_dir()</code> — reads <code>SECONDBRAIN_DIR</code> lazily, every call',
+      '<code>slugify()</code> — folds accents (Café→cafe), keeps other scripts (日本), falls back to "untitled"',
+      '<code>build_note_path()</code> — <code>YYYY-MM-DD-slug.md</code>, appending -1, -2… so nothing is overwritten',
+      '<code>create_note()</code> — writes <code># Title</code> + ISO timestamp, UTF-8',
+      '<code>read_note()</code> — reads back with matching UTF-8'
+    ],
+    deps:['os','re','unicodedata','datetime','pathlib']
+  },
+  app: {
+    icon:'📜', name:'app.py', badge:'the plumbing', lines:'68 lines',
+    role:'Logging setup. Defines the compact one-line log format and wires up both console and rotating-file handlers.',
+    does:[
+      '<code>LOG_FORMAT</code> — <code>time | LEVEL | module:func:line | message</code>',
+      '<code>LEVEL_ICONS</code> — levels shrink to one letter: T D I S W E C',
+      '<code>configure_logging()</code> — stderr at <code>LOG_LEVEL</code>, file at DEBUG (50 KB rotation, keeps 1)',
+      'If the log file can\'t open, it warns and carries on — logging never breaks a command',
+      '<code>main()</code> — a tiny <code>@logger.catch</code> smoke test'
+    ],
+    deps:['os','sys','pathlib','loguru','secondbrain.notes']
+  }
+};
+const panel = document.getElementById('panel');
+document.querySelectorAll('#tree .node').forEach(n => {
+  n.addEventListener('click', () => {
+    document.querySelectorAll('#tree .node').forEach(x => x.classList.remove('on'));
+    n.classList.add('on');
+    const f = FILES[n.dataset.f];
+    panel.innerHTML = `
+      <h3>${f.icon} ${f.name} <span class="badge">${f.badge}</span></h3>
+      <p class="role">${f.role}</p>
+      <h4>What's in it (${f.lines})</h4>
+      <ul>${f.does.map(d => `<li>${d}</li>`).join('')}</ul>
+      ${f.deps.length ? `<h4>Imports</h4><div class="deps">${f.deps.map(d=>`<span class="dep">${d}</span>`).join('')}</div>` : ''}
+    `;
+  });
+});
+document.querySelector('#tree .node[data-f="cli"]').click();
+</script>
+</body>
+</html>
