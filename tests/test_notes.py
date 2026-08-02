@@ -1,5 +1,6 @@
 """Tests for the notes module (slugify, build_note_path, create_note)."""
 
+import re
 from datetime import date, datetime
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from secondbrain.notes import (
     notes_dir,
     read_note,
     slugify,
+    split_title_and_body,
 )
 
 # ---------------------------------------------------------------------------
@@ -58,6 +60,39 @@ def test_slugify(title, expected):
 def test_slugify_keeps_distinct_non_latin_titles_distinct():
     """Regression: non-Latin titles all collapsed to `untitled` and collided."""
     assert slugify("日本の考え") != slugify("キャッシュの話")
+
+
+# ---------------------------------------------------------------------------
+# split_title_and_body
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("hello\\nworld", ("hello", "world")),
+        ("hello\nworld", ("hello", "world")),
+        ("hello", ("hello", "")),
+        ("a\\nb\\nc", ("a", "b\nc")),
+        ("hello\\n", ("hello", "")),
+        ("hello\\n\\nworld", ("hello", "world")),
+    ],
+    ids=[
+        "literal_escape",
+        "real_newline",
+        "no_break",
+        "only_first_break_splits",
+        "trailing_break",
+        "blank_line_between",
+    ],
+)
+def test_split_title_and_body(text, expected):
+    assert split_title_and_body(text) == expected
+
+
+def test_split_title_and_body_preserves_unicode():
+    """Regression guard: `unicode_escape` decoding would mojibake this title."""
+    assert split_title_and_body("Café über Ideen 日本") == ("Café über Ideen 日本", "")
 
 
 # ---------------------------------------------------------------------------
@@ -118,10 +153,27 @@ def test_create_note_content_heading(tmp_path):
     assert lines[0] == "# Test idea"
 
 
-def test_create_note_content_timestamp(tmp_path):
+def test_create_note_content_has_no_timestamp(tmp_path):
+    """The date already lives in the filename; the body is user content only."""
     path = create_note("Test idea", tmp_path, now=FIXED_NOW)
     text = path.read_text()
-    assert "2026-03-22T14:30:00" in text
+    assert not re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", text)
+
+
+def test_create_note_title_only_content(tmp_path):
+    path = create_note("Test idea", tmp_path, now=FIXED_NOW)
+    assert path.read_text() == "# Test idea\n"
+
+
+def test_create_note_writes_body_after_heading(tmp_path):
+    path = create_note("hello\\nworld", tmp_path, now=FIXED_NOW)
+    assert path.read_text() == "# hello\n\nworld\n"
+
+
+def test_create_note_slug_uses_first_line_only(tmp_path):
+    path = create_note("hello\\nworld", tmp_path, now=FIXED_NOW)
+    assert path.name == "2026-03-22-hello.md"
+    assert "world" not in path.name
 
 
 def test_create_note_no_yaml_frontmatter(tmp_path):
