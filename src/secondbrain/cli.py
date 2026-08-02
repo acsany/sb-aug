@@ -18,7 +18,11 @@ def cli():
 @cli.command()
 @click.argument("title")
 def new(title: str):
-    """Create a new note with the given TITLE."""
+    """Create a new note with the given TITLE.
+
+    Text after the first line break (a literal \\n or a real newline) becomes
+    the note's body.
+    """
     base_dir = notes_dir()
     logger.debug("Creating note in {}", base_dir)
     path = create_note(title, base_dir)

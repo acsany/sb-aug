@@ -40,6 +40,21 @@ def slugify(title: str) -> str:
     return slug or "untitled"
 
 
+def split_title_and_body(text: str) -> tuple[str, str]:
+    """Split raw CLI text into a title and an optional body.
+
+    A literal `\\n` escape sequence counts as a line break, since shell users
+    cannot easily type a real newline into a single positional argument. Only
+    the first break splits; everything after it is the body.
+
+    The unescaping is a targeted replacement rather than a full
+    `unicode_escape` decode, which would mangle non-ASCII titles.
+    """
+    unescaped = text.replace("\\n", "\n")
+    title, _, body = unescaped.partition("\n")
+    return title.strip(), body.strip()
+
+
 def build_note_path(title: str, base_dir: Path, note_date: date) -> Path:
     """Build the full file path for a note, creating the directory if needed.
 
@@ -62,11 +77,15 @@ def create_note(
     base_dir: Path,
     now: datetime | None = None,
 ) -> Path:
-    """Create a markdown note file and return its absolute path."""
+    """Create a markdown note file and return its absolute path.
+
+    The first line of `title` becomes the heading and the filename slug;
+    anything after the first line break becomes the note's body.
+    """
     now = now or datetime.now()
+    title, body = split_title_and_body(title)
     path = build_note_path(title, base_dir, now.date())
-    timestamp = now.replace(microsecond=0).isoformat()
-    content = f"# {title}\n\n{timestamp}\n"
+    content = f"# {title}\n\n{body}\n" if body else f"# {title}\n"
     path.write_text(content, encoding="utf-8")
     return path.resolve()
 

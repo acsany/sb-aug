@@ -69,12 +69,22 @@ def test_cli_new_file_content_has_heading(tmp_note_dir):
     assert lines[0] == "# My heading test"
 
 
-def test_cli_new_file_content_has_timestamp(tmp_note_dir):
+def test_cli_new_file_content_has_no_timestamp(tmp_note_dir):
+    """The date already lives in the filename; the body is user content only."""
     result = runner.invoke(cli, ["new", "Timestamp test"])
     assert result.exit_code == 0
     md_file = next(tmp_note_dir.glob("*.md"))
     text = md_file.read_text()
-    assert re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", text)
+    assert not re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", text)
+
+
+def test_cli_new_splits_title_and_body(tmp_note_dir):
+    result = runner.invoke(cli, ["new", "hello\\nworld"])
+    assert result.exit_code == 0
+    files = list(tmp_note_dir.glob("*.md"))
+    assert len(files) == 1
+    assert files[0].name.endswith("-hello.md")
+    assert files[0].read_text() == "# hello\n\nworld\n"
 
 
 # ---------------------------------------------------------------------------

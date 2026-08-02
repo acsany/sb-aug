@@ -18,6 +18,27 @@ uv run secondbrain list                      # list notes (newest first)
 uv run secondbrain show 1                    # print the contents of note 1
 ```
 
+### Titles and bodies
+
+The first line of `TITLE` is the note's title — it becomes both the `# ` heading and the
+filename slug. Everything after the first line break becomes the note's body:
+
+```bash
+uv run secondbrain new "My idea\nSome longer thoughts"   # title + body
+```
+
+writes `<date>-my-idea.md` containing:
+
+```markdown
+# My idea
+
+Some longer thoughts
+```
+
+A literal `\n` counts as a line break, since a real newline is awkward to type into a single
+shell argument. Only the *first* break splits — later ones stay part of the body. A title with
+no line break produces a note with just the heading.
+
 With dev settings loaded:
 
 ```bash
