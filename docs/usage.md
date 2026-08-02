@@ -10,25 +10,37 @@ uv sync
 
 ## Running
 
-Via the CLI entrypoint:
+The CLI exposes three subcommands:
 
 ```bash
-uv run secondbrain                          # production defaults
-uv run --env-file .env secondbrain          # dev settings
+uv run secondbrain new "My brilliant idea"   # create a note
+uv run secondbrain list                      # list notes (newest first)
+uv run secondbrain show 1                    # print the contents of note 1
+```
+
+With dev settings loaded:
+
+```bash
+uv run --env-file .env secondbrain new "My brilliant idea"
 ```
 
 Or as a Python module:
 
 ```bash
-uv run python -m secondbrain
+uv run python -m secondbrain new "My brilliant idea"
 ```
 
 ## Environment Variables
 
-| Variable    | Default    | Description                          |
-|-------------|------------|---------------------------------------|
-| `LOG_LEVEL` | `INFO`     | Console log level (DEBUG, INFO, …)   |
-| `LOG_FILE`  | `app.log`  | Path to the log file                 |
+| Variable           | Default                       | Description                        |
+|--------------------|-------------------------------|------------------------------------|
+| `LOG_LEVEL`        | `INFO`                        | Console log level (DEBUG, INFO, …) |
+| `LOG_FILE`         | `app.log` in `SECONDBRAIN_DIR`| Path to the log file               |
+| `SECONDBRAIN_DIR`  | `~/secondbrain/`              | Directory where notes are stored   |
+
+The log file defaults to the notes directory rather than the working directory, so
+running the CLI from anywhere does not leave an `app.log` behind. If the log file
+cannot be opened, the command still runs and logs to the console only.
 
 Copy `.env.example` to `.env` for development defaults, then run with `uv run --env-file .env`.
 
