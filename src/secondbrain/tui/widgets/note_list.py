@@ -55,7 +55,12 @@ class NoteList(Container):
 
     def on_mount(self) -> None:
         """Set up event handlers."""
-        self.list_view.on_select_changed = self._on_selection_changed
+        pass
+
+    def on_list_view_selected(self, event: ListView.Selected) -> None:
+        """Handle note selection from ListView."""
+        if isinstance(event.item, NoteListItem):
+            self.post_message(NoteSelected(event.item.note.index))
 
     def set_notes(self, notes: list[NoteMetadata]) -> None:
         """Update the note list."""
@@ -63,11 +68,6 @@ class NoteList(Container):
         for note in notes:
             item = NoteListItem(note)
             self.list_view.append(item)
-
-    def _on_selection_changed(self, event) -> None:
-        """Handle note selection."""
-        if event.cursor_line is not None:
-            self.post_message(NoteSelected(event.cursor_line))
 
     def select_by_index(self, index: int) -> None:
         """Select a note by index."""
