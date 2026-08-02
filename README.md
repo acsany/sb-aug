@@ -12,12 +12,31 @@ uv sync
 
 ## Usage
 
-The CLI exposes three subcommands:
+### Interactive TUI (default)
+
+Launch the interactive terminal UI by running `secondbrain` with no arguments:
+
+```bash
+uv run secondbrain                           # launch TUI
+uv run --env-file .env secondbrain           # launch TUI with dev environment
+uv run python -m secondbrain                 # launch TUI via Python module
+```
+
+**TUI Keyboard shortcuts:**
+- `Ctrl+N` — create a new note
+- `Ctrl+S` — save the current note
+- `Esc` — cancel editing and return to browsing
+- `Ctrl+Q` — quit the application
+
+### CLI Subcommands
+
+The CLI also exposes subcommands for scripting:
 
 ```bash
 uv run secondbrain new "My brilliant idea"   # create a note
 uv run secondbrain list                      # list notes (newest first)
 uv run secondbrain show 1                    # print the contents of note 1
+uv run secondbrain tui [--debug]             # launch TUI (same as default)
 ```
 
 The first line of `TITLE` is the note's title — it becomes both the `# ` heading and the
