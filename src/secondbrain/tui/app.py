@@ -66,6 +66,7 @@ class SecondBrainTUI(App):
         """Initialize app on mount."""
         self._load_notes()
         self._setup_bindings()
+        self._update_status()
 
     def on_note_selected(self, message: NoteSelected) -> None:
         """Handle note selection from sidebar."""
@@ -102,10 +103,14 @@ class SecondBrainTUI(App):
 
             title = self._extract_title_from_content(content)
             try:
-                self.note_manager.create_new_note(title)
+                metadata = self.note_manager.create_new_note(title)
+                # Update the note file with the user's content
+                metadata.path.write_text(content, encoding="utf-8")
                 self._load_notes()
                 self.state.mode = ViewMode.BROWSING
+                self.state.reset_editor()
                 self._update_editor_content()
+                self._update_status()
             except Exception as e:
                 logger.error(f"Error saving note: {e}")
 
