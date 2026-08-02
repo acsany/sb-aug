@@ -43,6 +43,42 @@ def test_file_line_matches_console_format(tmp_path):
     assert LINE_RE.match(line), f"unexpected file line: {line!r}"
 
 
+def test_log_file_defaults_into_notes_dir(tmp_path, monkeypatch):
+    """The default log file lives with the notes, not in the current directory."""
+    monkeypatch.delenv("LOG_FILE", raising=False)
+    notes = tmp_path / "notes"
+    monkeypatch.setenv("SECONDBRAIN_DIR", str(notes))
+    configure_logging()
+    logger.info("hello")
+    logger.remove()  # close and flush the file sink
+    assert (notes / "app.log").is_file()
+
+
+def test_no_log_file_written_to_cwd(tmp_path, monkeypatch):
+    """Regression: running the CLI dropped an `app.log` in whatever cwd you were in."""
+    monkeypatch.delenv("LOG_FILE", raising=False)
+    monkeypatch.setenv("SECONDBRAIN_DIR", str(tmp_path / "notes"))
+    monkeypatch.chdir(tmp_path)
+    configure_logging()
+    logger.info("hello")
+    logger.remove()
+    assert not (tmp_path / "app.log").exists()
+
+
+def test_configure_logging_survives_unopenable_log_file(tmp_path, monkeypatch, capfd):
+    """Regression: an unwritable log path crashed the command with a traceback."""
+    blocker = tmp_path / "blocker"
+    blocker.write_text("a file, so it cannot also be a directory")
+    monkeypatch.setenv("LOG_FILE", str(blocker / "app.log"))
+
+    configure_logging()  # must not raise
+    logger.info("still logging to the console")
+
+    err = capfd.readouterr().err
+    assert "File logging disabled" in err
+    assert "still logging to the console" in err
+
+
 @pytest.mark.parametrize(
     ("level", "icon"),
     [

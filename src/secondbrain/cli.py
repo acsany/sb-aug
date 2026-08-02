@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
 import click
 from loguru import logger
 
 from secondbrain.app import configure_logging
-from secondbrain.notes import create_note
+from secondbrain.notes import create_note, notes_dir, read_note
 
 
 @click.group()
@@ -22,9 +19,7 @@ def cli():
 @click.argument("title")
 def new(title: str):
     """Create a new note with the given TITLE."""
-    base_dir = Path(
-        os.environ.get("SECONDBRAIN_DIR", str(Path.home() / "secondbrain"))
-    ).expanduser()
+    base_dir = notes_dir()
     logger.debug("Creating note in {}", base_dir)
     path = create_note(title, base_dir)
     logger.info("Created note: {}", path)
@@ -34,9 +29,7 @@ def new(title: str):
 @cli.command("list")
 def list_notes():
     """List all notes in the notes directory."""
-    base_dir = Path(
-        os.environ.get("SECONDBRAIN_DIR", str(Path.home() / "secondbrain"))
-    ).expanduser()
+    base_dir = notes_dir()
 
     if not base_dir.is_dir():
         logger.warning("Notes directory does not exist: {}", base_dir)
@@ -61,9 +54,7 @@ def list_notes():
 @click.argument("number", type=int)
 def show(number: int):
     """Display the contents of note NUMBER."""
-    base_dir = Path(
-        os.environ.get("SECONDBRAIN_DIR", str(Path.home() / "secondbrain"))
-    ).expanduser()
+    base_dir = notes_dir()
 
     if not base_dir.is_dir():
         logger.error("Notes directory does not exist: {}", base_dir)
@@ -86,4 +77,4 @@ def show(number: int):
         raise SystemExit(1)
 
     logger.debug("Showing note {}: {}", number, files[number - 1].name)
-    click.echo(files[number - 1].read_text())
+    click.echo(read_note(files[number - 1]))

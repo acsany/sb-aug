@@ -32,11 +32,15 @@ uv run python -m secondbrain new "My brilliant idea"
 
 ## Environment Variables
 
-| Variable           | Default            | Description                          |
-|--------------------|---------------------|--------------------------------------|
-| `LOG_LEVEL`        | `INFO`              | Console log level (DEBUG, INFO, …)   |
-| `LOG_FILE`         | `app.log`           | Path to the log file                 |
-| `SECONDBRAIN_DIR`  | `~/secondbrain/`    | Directory where notes are stored     |
+| Variable           | Default                       | Description                        |
+|--------------------|-------------------------------|------------------------------------|
+| `LOG_LEVEL`        | `INFO`                        | Console log level (DEBUG, INFO, …) |
+| `LOG_FILE`         | `app.log` in `SECONDBRAIN_DIR`| Path to the log file               |
+| `SECONDBRAIN_DIR`  | `~/secondbrain/`              | Directory where notes are stored   |
+
+The log file defaults to the notes directory rather than the working directory, so
+running the CLI from anywhere does not leave an `app.log` behind. If the log file
+cannot be opened, the command still runs and logs to the console only.
 
 Copy `.env.example` to `.env` for development defaults, then run with `uv run --env-file .env`.
 

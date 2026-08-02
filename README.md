@@ -41,7 +41,8 @@ cp .env.example .env
 ```
 
 - `LOG_LEVEL` (default: `INFO`) — set to `DEBUG` in `.env` for verbose console output.
-- `LOG_FILE` (default: `app.log`) — path to the log file.
+- `LOG_FILE` (default: `app.log` inside `SECONDBRAIN_DIR`) — path to the log file. If it
+  cannot be opened, logging falls back to the console and the command still runs.
 - `SECONDBRAIN_DIR` (default: `~/secondbrain/`) — directory where notes are stored.
 
 `.env` is not auto-loaded; use `uv run --env-file .env` to load the dev environment explicitly.

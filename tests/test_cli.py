@@ -216,6 +216,20 @@ def test_cli_show_empty_directory(tmp_note_dir):
     assert "No notes found" in result.output
 
 
+def test_cli_show_roundtrips_unicode_content(tmp_note_dir):
+    created = runner.invoke(cli, ["new", "Café über Ideen 日本"])
+    assert created.exit_code == 0
+    result = runner.invoke(cli, ["show", "1"])
+    assert result.exit_code == 0
+    assert "Café über Ideen 日本" in result.output
+
+
+def test_cli_new_folds_accents_in_filename(tmp_note_dir):
+    result = runner.invoke(cli, ["new", "Café über Ideen"])
+    assert result.exit_code == 0
+    assert "cafe-uber-ideen" in next(tmp_note_dir.glob("*.md")).name
+
+
 def test_cli_show_help():
     result = runner.invoke(cli, ["show", "--help"])
     assert result.exit_code == 0
